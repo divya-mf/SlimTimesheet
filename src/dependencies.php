@@ -84,9 +84,9 @@ $container['phpErrorHandler'] = function ($container)
 		$msg='500: Please try later';
 		return $msg;
 	};
-};
+}; 
 
-//object for database connectivity
+// object for database connectivity
 $container['db'] = function ($container) 
 {
 	$settings = $container->get('settings')['db'];
