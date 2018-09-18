@@ -86,11 +86,11 @@ $container['phpErrorHandler'] = function ($container)
 	};
 };
 
-//object of database connectivity
+//object for database connectivity
 $container['db'] = function ($container) 
 {
 	$settings = $container->get('settings')['db'];
-	
+
     require_once (__DIR__ .'/api/FileMaker.php');
 
      define('FM_HOST', $settings['FM_HOST']);

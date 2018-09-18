@@ -16,7 +16,7 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],
 
-        //db credentials
+        //db credentials for connectivity
         "db" => [
             "FM_HOST" => "172.16.9.42",
             "FM_FILE" => "userActivities.fmp12",
