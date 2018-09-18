@@ -10,11 +10,11 @@ $container['renderer'] = function ($container) {
 };
 
 // monolog
-$container['logger'] = function ($container) {
+$container['logger'] = function ($container) { 
     $settings = $container->get('settings')['logger'];
-    $logger = new Monolog\Logger('slimprojecct');
+    $logger = new Monolog\Logger($settings['name']);
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
-    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/app.log', '\Monolog\Logger::DEBUG'));
+    $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
 
@@ -87,13 +87,16 @@ $container['phpErrorHandler'] = function ($container)
 };
 
 //object of database connectivity
-$container['db'] = function ($container) {
+$container['db'] = function ($container) 
+{
+	$settings = $container->get('settings')['db'];
+	
     require_once (__DIR__ .'/api/FileMaker.php');
 
-     define('FM_HOST', '172.16.9.42');
-     define('FM_FILE', 'userActivities.fmp12');
-     define('FM_USER', 'admin');
-     define('FM_PASS', 'mindfire');
+     define('FM_HOST', $settings['FM_HOST']);
+     define('FM_FILE', $settings['FM_FILE']);
+     define('FM_USER', $settings['FM_USER']);
+     define('FM_PASS', $settings['FM_PASS']);
     
     //to create the FileMaker Object
     $fm = new FileMaker(FM_FILE, FM_HOST, FM_USER, FM_PASS);

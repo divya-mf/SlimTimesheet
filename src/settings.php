@@ -11,11 +11,12 @@ return [
 
         // Monolog settings
         'logger' => [
-            'name' => 'slim-app',
+            'name' => 'slimproject',
             'path' =>  __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
         ],
 
+        //db credentials
         "db" => [
             "FM_HOST" => "172.16.9.42",
             "FM_FILE" => "userActivities.fmp12",

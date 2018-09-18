@@ -4,15 +4,12 @@
  * 
 */
 require '../vendor/autoload.php';
-
-$app = new \Slim\App([
-	'settings' => [
-		'displayErrorDetails'=> true,
-	]
-]);
+$settings=require __DIR__ . '/../src/settings.php';
+$app = new \Slim\App($settings);
 
 
 //fetch all the dependencies
+
 require __DIR__ . '/../src/dependencies.php';
 
 // Register routes
