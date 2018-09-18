@@ -77,7 +77,6 @@ class AuthController extends Controller
     {
         $email = $request->getParsedBody()['email'];
         $pw =  $request->getParsedBody()['password'];
-        //var_dump($pw);exit;
         $loginData = array(
                 'email'=> $email
         );

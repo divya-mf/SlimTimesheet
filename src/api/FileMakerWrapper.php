@@ -44,10 +44,9 @@ class FileMakerWrapper{
         {   
             $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $status['records']=[]; 
-             if($result->code!= 401)
-            {
-                $this->log->addInfo($result->code.'=> '.$result->getMessage());
-            }
+             
+            $result->code!= 401 ?  $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
         }
         else
         {
@@ -72,11 +71,12 @@ class FileMakerWrapper{
         $records = $result->getRecords();
         $status['records']=$records;
         $status['msg']=array('status'=> "Ok", 'code'=> 200);
+
         if ($this->class::isError($records))
         {
             $status['msg']=array('status'=> $records->getMessage(), 'code'=> $records->code);
             $status['records']=[];
-            $this->log->addInfo($records->code.'=> '.$records->getMessage());
+            $records->code!= 401 ? $this->log->addInfo($records->code.'=> '.$records->getMessage()) : '';
         } 
         return $status;
     } 
@@ -96,7 +96,8 @@ class FileMakerWrapper{
         $findCommand = $this->fm->newCompoundFindCommand($layout);
         $i=1;
 
-        foreach ($allORs as $key => $val) {
+        foreach ($allORs as $key => $val) 
+        {
 
             ${'findRequest' . $i} = $this->fm->newFindRequest($layout);
 
@@ -120,9 +121,7 @@ class FileMakerWrapper{
             {
                 $findCommand->add($i, ${'findRequest' . $i});
                 $i++;
-            }
-
-            
+            } 
 
         }
 
@@ -132,7 +131,7 @@ class FileMakerWrapper{
             $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $status['records']=[];
 
-            $this->log->addInfo($result->code.'=> '.$result->getMessage());
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
         }
         else
         {
@@ -144,7 +143,7 @@ class FileMakerWrapper{
             {
                 $status['msg']=array('status'=> $records->getMessage(), 'code'=> $records->code);
                 $status['records']=[];
-                $this->log->addInfo($records->code.'=> '.$records->getMessage());
+                $records->code!= 401 ? $this->log->addInfo($records->code.'=> '.$records->getMessage()) : '';
             }
         }
         return $status;
@@ -168,10 +167,8 @@ class FileMakerWrapper{
        if ($this->class::isError($result)) 
        {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
-            if($result->code!= 401)
-            {
-                $this->log->addInfo($result->code.'=> '.$result->getMessage());
-            }
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
             return $status;
        }
          // Execute the script
@@ -197,10 +194,8 @@ class FileMakerWrapper{
        if ($this->class::isError($result)) 
        {
             $status=[];
-            if($result->code!= 401)
-            {
-                $this->log->addInfo($result->code.'=> '.$result->getMessage());
-            }
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
             return $status;
        }
 
