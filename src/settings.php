@@ -19,7 +19,7 @@ return [
         // db credentials for connectivity.
         "db" => [
             "FM_HOST" => "172.16.9.42",
-            "FM_FILE" => "userActivities.fmp12",
+            "FM_FILE" => "userActivitiesManagement.fmp12",
             "FM_USER" => "admin",
             "FM_PASS" => "mindfire"
         ],

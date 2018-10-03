@@ -178,6 +178,47 @@ class FileMakerWrapper{
        return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Added successfully");
     }
 
+
+    /**
+     * updateRecord
+     * updates record in database.
+     *
+     * @param string $layout The FileMaker layout name.
+     * @param string $data The data to update in the database.
+     * returns {boolean value}
+     */
+    public function updateRecord($layout, $data)
+    {
+        $findCommand = $this->fm->newFindCommand($layout);
+        $id=$data['id'];
+        $status=$data['status'];
+        $findCommand->addFindCriterion('id',"==$id");
+        $result = $findCommand->execute();
+        
+       if ($this->class::isError($result)) 
+       {
+            $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
+            return $status;
+       }
+        $rec_ID = $result->getLastRecord()->getRecordID();
+       /* $newEdit = $fm->newEditCommand($layout, $rec_ID, $respondent_data);
+        $result = $newEdit->execute(); */
+        $rec = $this->fm->getRecordById($layout, $rec_ID);
+        $rec->setField('status', $status);
+        $result = $rec->commit();
+        if ($this->class::isError($result)) 
+       {
+            $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
+            return $status;
+       }
+
+       return  $status=array('status'=> "success", 'code'=> 200);
+    }
+
    /**
      * performScript
      * executes scripts.

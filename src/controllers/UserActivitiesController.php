@@ -93,7 +93,7 @@ class UserActivitiesController extends Controller
 	                    'dueDate'=>$date
 	                    );
 
-	        $result=$this->fmMethodsObj->createRecord('activities',$activityDetails);
+	        $result=$this->fmMethodsObj->createRecord('ACT',$activityDetails);
 
 	        return $response->withStatus(200)
                             ->withJson("Activity added successfully");
@@ -132,12 +132,12 @@ class UserActivitiesController extends Controller
 	    {
 	    	if(isset($allANDs) || isset($allORs))
 	    	{
-	           	$records = $this->fmMethodsObj->getSearchResult('activities',$allANDs,$allORs);
+	           	$records = $this->fmMethodsObj->getSearchResult('ACT',$allANDs,$allORs);
 	        }
 	        else
 	        {
 
-	        	$records = $this->fmMethodsObj->getAll('activities');
+	        	$records = $this->fmMethodsObj->getAll('ACT');
 	    	}
 	    }
 	    else
@@ -146,12 +146,12 @@ class UserActivitiesController extends Controller
 	    	{
 	    		
 	          $allANDs = array_merge($allANDs, $userDetails);
-	          $records = $this->fmMethodsObj->getSearchResult('activities',$allANDs,$allORs);
+	          $records = $this->fmMethodsObj->getSearchResult('ACT',$allANDs,$allORs);
 	          	
 	        }
 	        else
 	        {
-	        	$records = $this->fmMethodsObj->getOne('activities',$userDetails);
+	        	$records = $this->fmMethodsObj->getOne('ACT',$userDetails);
 	        }
 	    }
 
@@ -164,7 +164,7 @@ class UserActivitiesController extends Controller
 		        $activities[$i]['id']=$record->getField('id');
 		        $activities[$i]['description']=$record->getField('description');
 		        $activities[$i]['status']=$record->getField('status');
-		        $activities[$i]['user_id']=$record->getField('USR::fullName');
+		        $activities[$i]['user_id']=$record->getField('userName1');
 		        $activities[$i]['priority']=$record->getField('priority');
 		        $activities[$i]['creationDate']=$record->getField('createdDate');
 		        $activities[$i]['dueDate']=$record->getField('dueDate');
@@ -192,6 +192,27 @@ class UserActivitiesController extends Controller
         return $response->withStatus($httpResponseCode)
                         ->withJson($res);
         
+	}
+
+	/**
+	 * updateStatus
+     * updates the status of an activity in the database
+     *
+     * returns {json object}
+     */
+	public function updateStatus($request, $response)
+	{
+			
+	        $activityDetails = array(
+	                    'id' =>$request->getParsedBody()['id'],
+	                    'status' =>$request->getParsedBody()['status'],
+	                
+	                    );
+
+	        $result=$this->fmMethodsObj->updateRecord('ACT',$activityDetails);
+
+	        return $response->withJson($result);
+	    
 	}
 
 
