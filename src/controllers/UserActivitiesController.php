@@ -128,7 +128,7 @@ class UserActivitiesController extends Controller
 			$allANDs=$request->getParsedBody()['dataToSend']['allANDs'];
 			$allORs=$request->getParsedBody()['dataToSend']['allORs'];
 		}
-	    if($role == 'Admin')
+	    if($role == 'Project Head' || $role == 'Developer')
 	    {
 	    	if(isset($allANDs) || isset($allORs))
 	    	{
