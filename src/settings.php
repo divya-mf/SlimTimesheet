@@ -1,4 +1,7 @@
 <?php
+//setting the .env file
+$dotenv = new Dotenv\Dotenv(__DIR__.'/..');
+$dotenv->load();
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -18,10 +21,10 @@ return [
 
         // db credentials for connectivity.
         "db" => [
-            "FM_HOST" => "172.16.9.42",
-            "FM_FILE" => "userActivitiesManagement.fmp12",
-            "FM_USER" => "admin",
-            "FM_PASS" => "mindfire"
+            "FM_HOST" => getenv('FM_HOST'),
+            "FM_FILE" => getenv('FM_FILE'),
+            "FM_USER" => getenv('FM_USER'),
+            "FM_PASS" => getenv('FM_PASS')
         ],
     ],
 ];
