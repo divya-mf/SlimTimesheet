@@ -160,7 +160,7 @@ class FileMakerWrapper{
      */
 	public function createRecord($layout, $data)
 	{
-        $scriptName="hashPasssword";
+       // $scriptName="hashPasssword";
         $rec = $this->fm->createRecord($layout, $data);
         $result = $rec->commit();
         
@@ -172,8 +172,38 @@ class FileMakerWrapper{
             return $status;
        }
          // Execute the script
-       $scriptObject = $this->fm->newPerformScriptCommand($layout, $scriptName);
-       $result = $scriptObject->execute();
+       //$scriptObject = $this->fm->newPerformScriptCommand($layout, $scriptName);
+       //$result = $scriptObject->execute();
+
+       return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Added successfully");
+    }
+
+
+    /**
+	 * deleteRecord
+     * deletes a record from the database.
+     *
+     * @param string $layout The FileMaker layout name.
+     * @param string $id The id of the record to delete from the database.
+     * returns {boolean value}
+     */
+	public function deleteRecord($layout, $id)
+	{
+
+        $findCommand =& $fm->newFindCommand('ACT');
+        $findCommand->addFindCriterion('id', $id);;
+        $result = $findCommand->execute(); 
+        $records = $result->getRecords(); 
+        $records->delete();
+        
+       if ($this->class::isError($result)) 
+       {
+            $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
+            $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
+            return $status;
+       }
+        
 
        return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Added successfully");
     }
@@ -209,13 +239,13 @@ class FileMakerWrapper{
         $rec->setField('status', $status);
         $result = $rec->commit();
         if ($this->class::isError($result)) 
-       {
+        {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
             return $status;
-       }
-
+        }
+            
        return  $status=array('status'=> "success", 'code'=> 200);
     }
 

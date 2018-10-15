@@ -27,6 +27,7 @@ class UserActivitiesController extends Controller
      */
 	public function getAllUsers($request, $response)
 	{
+	
 	    $result = $this->fmMethodsObj->getAll('USR'); 
         $records=$result['records'];
 	    $users=array();
@@ -55,6 +56,7 @@ class UserActivitiesController extends Controller
      */
 	public function getUserDetails($request, $response)
 	{
+			//print $_SERVER["HTTP_AUTHORIZATION"]; exit;
 		$userDetails = array(
 	                    'id' =>$request->getParsedBody()['id'],
 	                    );
@@ -68,10 +70,9 @@ class UserActivitiesController extends Controller
 	    $user['role']=$records->getField('role');
         $userInfo['msg']= $result['msg'];
         $userInfo['user']=$user;
-        
+        $userInfo['auth'] =$_SERVER["HTTP_AUTHORIZATION"];
         return $response->withStatus(200)
-                        ->withHeader('Content-Type', 'application/json')
-                        ->write(json_encode($userInfo));
+                        ->withJson($userInfo);
 	}
 
 
@@ -88,7 +89,7 @@ class UserActivitiesController extends Controller
 			$date = date("m-d-Y", strtotime($request->getParsedBody()['date']));
 	        $activityDetails = array(
 	                    'description' =>$request->getParsedBody()['description'],
-	                    '__fk_user_id' =>$request->getParsedBody()['user_id'],
+	                    'fk_user_id' =>$request->getParsedBody()['user_id'],
 	                    'priority'=>$request->getParsedBody()['priority'],
 	                    'dueDate'=>$date
 	                    );
@@ -107,6 +108,51 @@ class UserActivitiesController extends Controller
             }
 	}
 
+	/**
+	 * addNoteToActivity
+     * adds a note to an activity 
+     *
+     * returns {json object}
+     */
+	public function addNoteToActivity($request, $response)
+	{
+	    if($request->getParsedBody()['noteData']['note']!=''){
+
+	        $noteDetails = array(
+	                    'note' =>$request->getParsedBody()['noteData']['note'],
+	                    'timeSpent' =>$request->getParsedBody()['noteData']['timeSpent'],
+	                    'activityID'=>$request->getParsedBody()['aId']
+	                    );
+
+	        $result=$this->fmMethodsObj->createRecord('activityNotes',$noteDetails);
+
+	        return $response->withStatus(200)
+                            ->withJson("Note added successfully");
+	    }
+	    else
+	        {   
+				$res = array('status'=> "BAD REQUEST", 'code'=> 400,'description'=>"Fill in all the fields");
+				
+           		 return $response->withStatus(400)
+                            	 ->withJson($res);
+            }
+	}
+
+	/**
+	 * deleteActivity
+     *deletes activity from the database
+     *
+     * returns {json object}
+     */
+	public function deleteActivity($request, $response)
+	{ 		
+			$id=$request->getParsedBody()['id'];
+	        $result=$this->fmMethodsObj->deleteRecord('ACT',$id);
+
+	        return $response->withStatus(200)
+                            ->withJson("deleted successfully");
+	    
+	}
 
 	/**
 	 * getAllActivities
@@ -214,6 +260,50 @@ class UserActivitiesController extends Controller
 	        return $response->withJson($result);
 	    
 	}
+
+	/**
+	 * getActivityNotes
+     * fetches all the notes assigned to an activity.
+     *
+     * returns json object
+     */
+	public function getActivityNotes($request, $response)
+	{
+		//print_r($request->getParsedBody()['aId']);exit;
+		$notes=array();
+		$actDetails = array(
+	                    'activityID' =>$request->getParsedBody()['aId'],
+	                    );
+		$result = $this->fmMethodsObj->getOne('activityNotes', $actDetails); 
+		
+        $i=0;
+	    if(!empty($result['records']))
+	    {
+            $result=$result['records'];
+		    foreach ($result as $record) { 
+
+		        $notes[$i]['id']=$record->getField('id');
+		        $notes[$i]['note']=$record->getField('note');
+		        $notes[$i]['timeSpent']=$record->getField('timeSpent');
+		        $notes[$i]['AddedBy']=$record->getField('AddedBy');
+		        $i++;
+			}
+
+            $httpResponseCode=200;
+            $res=$notes;
+        }
+        else
+        {
+        		$httpResponseCode=200;
+        	    $res="";
+        	
+        }
+
+        return $response->withStatus($httpResponseCode)
+                        ->withJson($res);
+        
+	}
+	
 
 
 

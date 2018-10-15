@@ -13,5 +13,10 @@ $app = new \Slim\App($settings);
 
 require __DIR__ . '/../src/dependencies.php';
 
+// Register middleware
+require '../src/middleware.php';
+
 // Register routes
 require '../src/routes.php';
+
+

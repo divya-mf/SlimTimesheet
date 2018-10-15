@@ -4,20 +4,26 @@
  * class that manages all the login and registration of the user.
  *
  */
-
+use Firebase\JWT\JWT;
+use Tuupola\Base62;
+use \Datetime;
 namespace Src\Controllers;
 
 class AuthController extends Controller
  { 
     private $class;
     private $fmMethodsObj;
+    private $contain;
     private $log;
+    private $middleware;
 
     public function __construct( $container)
     {
         $this->fmMethodsObj = $container->get('FileMakerWrapper'); //FileMaker connection object
         $this->log = $container->get('logger');
         $this->class = $container->get('Constants')->fileMaker;
+        $this->middleware = $container->get('Controller');
+
 	}
     
     /**
@@ -93,8 +99,25 @@ class AuthController extends Controller
             {
                 $_SESSION['id'] = $result['records'][0]->getField('id');
                 $_SESSION['role'] = $result['records'][0]->getField('role');
-            
-                $res = array('description'=>"login successful",'id'=>$_SESSION['id']);
+                $userName=$result['records'][0]->getField('firstName');
+                $now = new DateTime();
+                $future = new DateTime("+10 minutes");
+                //$server = $request->getServerParams();
+                $jti = (new Base62)->encode(random_bytes(16));
+                $payload = [
+                    "iat" => $now->getTimeStamp(),
+                    "exp" => $future->getTimeStamp(),
+                    "jti" => $jti,
+                    "user" => $userName
+                ];
+                print_r($payload);exit;
+                $secret = getenv('JWT_SECRET');
+                $token = JWT::encode($payload, $secret, "HS256");
+                $data = array();
+                $data["token"] = $token;
+                $data["expires"] = $future->getTimeStamp();
+               
+                $res = array('description'=>"login successful",'id'=>$_SESSION['id'],"user"=>$userName);
                 $http_status_code = 200;
             }
             else
@@ -108,6 +131,7 @@ class AuthController extends Controller
                         ->withStatus($http_status_code);
        
     }
+    
 
 
 }
