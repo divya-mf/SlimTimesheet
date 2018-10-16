@@ -190,8 +190,8 @@ class FileMakerWrapper{
 	public function deleteRecord($layout, $id)
 	{
 
-        $findCommand =& $fm->newFindCommand('ACT');
-        $findCommand->addFindCriterion('id', $id);;
+        $findCommand =$this->fm->newFindCommand($layout);
+        $findCommand->addFindCriterion('id', "==$id");;
         $result = $findCommand->execute(); 
         $records = $result->getRecords(); 
         $records->delete();
@@ -205,7 +205,7 @@ class FileMakerWrapper{
        }
         
 
-       return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Added successfully");
+       return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Deleted successfully");
     }
 
 
@@ -217,11 +217,10 @@ class FileMakerWrapper{
      * @param string $data The data to update in the database.
      * returns {boolean value}
      */
-    public function updateRecord($layout, $data)
+    public function updateRecord($layout,$id, $data)
     {
         $findCommand = $this->fm->newFindCommand($layout);
-        $id=$data['id'];
-        $status=$data['status'];
+        
         $findCommand->addFindCriterion('id',"==$id");
         $result = $findCommand->execute();
         
@@ -236,7 +235,14 @@ class FileMakerWrapper{
        /* $newEdit = $fm->newEditCommand($layout, $rec_ID, $respondent_data);
         $result = $newEdit->execute(); */
         $rec = $this->fm->getRecordById($layout, $rec_ID);
-        $rec->setField('status', $status);
+        foreach ($data as $field => $value)
+            {
+                if($value!='')
+                {
+                    $rec->setField($field, $value);
+                }
+            }
+       
         $result = $rec->commit();
         if ($this->class::isError($result)) 
         {

@@ -167,7 +167,7 @@ class UserActivitiesController extends Controller
 		$id=$request->getParsedBody()['dataToSend']['id'];
 		$role=$request->getParsedBody()['dataToSend']['role'];
 		$userDetails = array(
-	                    '__fk_user_id' =>$id,
+	                    'fk_user_id' =>$id,
 	                    );
 		if(isset($request->getParsedBody()['dataToSend']['allANDs']) || isset($request->getParsedBody()['dataToSend']['allORs'])){
 
@@ -209,7 +209,8 @@ class UserActivitiesController extends Controller
 
 		        $activities[$i]['id']=$record->getField('id');
 		        $activities[$i]['description']=$record->getField('description');
-		        $activities[$i]['status']=$record->getField('status');
+				$activities[$i]['status']=$record->getField('status');
+				$activities[$i]['fk_user_id']=$record->getField('fk_user_id');
 		        $activities[$i]['user_id']=$record->getField('userName1');
 		        $activities[$i]['priority']=$record->getField('priority');
 		        $activities[$i]['creationDate']=$record->getField('createdDate');
@@ -248,14 +249,55 @@ class UserActivitiesController extends Controller
      */
 	public function updateStatus($request, $response)
 	{
-			
+		$id = $request->getParsedBody()['id'];
 	        $activityDetails = array(
-	                    'id' =>$request->getParsedBody()['id'],
+	                    
 	                    'status' =>$request->getParsedBody()['status'],
 	                
 	                    );
 
-	        $result=$this->fmMethodsObj->updateRecord('ACT',$activityDetails);
+	        $result=$this->fmMethodsObj->updateRecord('ACT',$id,$activityDetails);
+
+	        return $response->withJson($result);
+	    
+	}
+
+	/**
+	 * updateActivity
+     * updates the details of an activity in the database
+     *
+     * returns {json object}
+     */
+	public function updateActivity($request, $response)
+	{
+			$id = $request->getParsedBody()['id'];
+	        $activityDetails = array(
+						'description' =>$request->getParsedBody()['activityData']['description'],
+						'priority' =>$request->getParsedBody()['activityData']['priority'],
+						'dueDate' =>$request->getParsedBody()['activityData']['date']
+	                    );
+
+	        $result=$this->fmMethodsObj->updateRecord('ACT',$id,$activityDetails);
+
+	        return $response->withJson($result);
+	    
+	}
+	/**
+	 * updateUser
+     * updates the details of an activity in the database
+     *
+     * returns {json object}
+     */
+	public function updateUser($request, $response)
+	{
+			$id = $request->getParsedBody()['id'];
+	        $userDetails = array(
+						'firstName' =>$request->getParsedBody()['userData']['fname'],
+						'lastName' =>$request->getParsedBody()['userData']['lname'],
+						'email' =>$request->getParsedBody()['userData']['email']
+	                    );
+
+	        $result=$this->fmMethodsObj->updateRecord('USR',$id,$userDetails);
 
 	        return $response->withJson($result);
 	    

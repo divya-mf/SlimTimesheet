@@ -15,6 +15,8 @@ $app->post('/updateStatus','UserActivitiesController:updateStatus');
 $app->post('/getUserDetails','UserActivitiesController:getUserDetails');
 $app->post('/getActivityNotes','UserActivitiesController:getActivityNotes');
 $app->post('/deleteActivity','UserActivitiesController:deleteActivity');
+$app->post('/updateActivity','UserActivitiesController:updateActivity');
+$app->post('/updateUser','UserActivitiesController:updateUser');
 
 //$app->get('/allActivities','UserActivitiesController:allActivities');
 
