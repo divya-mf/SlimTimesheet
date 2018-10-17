@@ -183,7 +183,22 @@ class UserActivitiesController extends Controller
 	        else
 	        {
 
-	        	$records = $this->fmMethodsObj->getAll('ACT');
+				//$records = $this->fmMethodsObj->getAll('ACT');
+				if(isset($request->getParsedBody()['dataToSend']['status']) && $request->getParsedBody()['dataToSend']['status']!= '' )
+				{
+					$status = array(
+					'status'=>$request->getParsedBody()['dataToSend']['status']
+				);
+				$range = array(
+					'max'=> $request->getParsedBody()['dataToSend']['max'],
+					'skip'=> $request->getParsedBody()['dataToSend']['skip']
+				);
+				$records = $this->fmMethodsObj->getRecordsByRange('ACT', $status, $range);
+			}
+				else
+				{
+					$records = $this->fmMethodsObj->getAll('ACT');
+				}
 	    	}
 	    }
 	    else
@@ -218,9 +233,18 @@ class UserActivitiesController extends Controller
 
 		        $i++;
 			}
+				$httpResponseCode=200;
+            	$res=$activities;
 
-            $httpResponseCode=200;
-            $res=$activities;
+			if(isset($records['total']))
+			{
+				$activitiesData['found']=$records['total'];
+				$activitiesData['activities']=$activities;
+				$res=$activitiesData;
+			}
+			
+
+            
         }
         else
         {

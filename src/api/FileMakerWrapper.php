@@ -79,7 +79,45 @@ class FileMakerWrapper{
             $records->code!= 401 ? $this->log->addInfo($records->code.'=> '.$records->getMessage()) : '';
         } 
         return $status;
-    } 
+    }
+    
+    /**
+	 * getRecordsByRange
+     * finds and fetches all the information from given layout and returns limited results as per requested range.
+     *
+     * @param string $layout The FileMaker layout name.
+     * @param array $findCriteria The fields and values to find if any.
+     * @param array $range data related to range.
+     * returns {array}
+     */
+	public function getRecordsByRange($layout, $findCriteria, $range)
+	{
+		$findCommand = $this->fm->newFindCommand($layout);
+        foreach ($findCriteria as $key => $val) {      
+            $findCommand->addFindCriterion($key,"==$val");
+        }
+        $skip=$range['skip'];
+        $max= $range['max'];
+        $findCommand->setRange($skip, $max);
+        $result = $findCommand->execute();
+        $found = $result->getFoundSetCount();
+        if ($this->class::isError($result))
+        {   
+            $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
+            $status['records']=[]; 
+             
+            $result->code!= 401 ?  $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
+            
+        }
+        else
+        {
+            $records = $result->getRecords();
+            $status['msg']=array('status'=> "Ok", 'code'=> 200);
+            $status['records']=$records;
+            $status['total']=$found;
+        }
+        return $status;
+    }
 
 
     /**
@@ -98,7 +136,6 @@ class FileMakerWrapper{
 
         foreach ($allORs as $key => $val) 
         {
-
             ${'findRequest' . $i} = $this->fm->newFindRequest($layout);
 
             if($val!='')
@@ -122,7 +159,6 @@ class FileMakerWrapper{
                 $findCommand->add($i, ${'findRequest' . $i});
                 $i++;
             } 
-
         }
 
         $result = $findCommand->execute();
@@ -138,7 +174,6 @@ class FileMakerWrapper{
             $records = $result->getRecords(); 
             $status['records']=$records;
 
-        
             if ($this->class::isError($records))
             {
                 $status['msg']=array('status'=> $records->getMessage(), 'code'=> $records->code);
