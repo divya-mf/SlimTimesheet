@@ -38,13 +38,13 @@ $container['UserActivitiesController'] = function ($container)
 //object of UserActivitiesController class
 $container['FileMakerWrapper'] = function ($container)
 {
-	return new \Src\Api\FileMakerWrapper($container);
+	return new \Src\Services\FileMakerWrapper($container);
 };
 
 //object of UserActivitiesController class
 $container['Constants'] = function ($container)
 {
-	return new \Src\Api\Constants($container);
+	return new \Src\Services\Constants($container);
 };
 
 //object of UserActivitiesController class
@@ -91,7 +91,7 @@ $container['db'] = function ($container)
 {
 	$settings = $container->get('settings')['db'];
 
-    require_once (__DIR__ .'/api/FileMaker.php');
+    require_once (__DIR__ .'/services/FileMaker.php');
 
      define('FM_HOST', $settings['FM_HOST']);
      define('FM_FILE', $settings['FM_FILE']);

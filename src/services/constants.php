@@ -3,7 +3,7 @@
  * This file is responsible for declaring all the constants required in this project.
  * 
 */
-namespace Src\Api;
+namespace Src\Services;
 
 class Constants
 {

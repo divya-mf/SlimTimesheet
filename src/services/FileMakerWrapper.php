@@ -4,7 +4,7 @@
  * class that manages all the methods required to interact with database
  *
  */
-namespace Src\Api;
+namespace Src\Services;
 
 class FileMakerWrapper{
     private $fm;
