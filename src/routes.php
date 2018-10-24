@@ -7,22 +7,77 @@
 use Firebase\JWT\JWT;
 use Tuupola\Base62;
 
+/**
+ * Adds a new User to db
+ * 
+ */
 $app->post('/register','AuthController:signUp');
+
+/**
+ * Fetches users from db
+ * 
+ */
 $app->get('/users','UserActivitiesController:getAllUsers');
+
+/**
+ * Fetches all the activities as per logged user.
+ * 
+ */
 $app->post('/activities','UserActivitiesController:getAllActivities');
+
+/**
+ * Adds a new activity.
+ * 
+ */
 $app->post('/addActivity','UserActivitiesController:addActivity');
+
+/**
+ * Adds a new note to specified activity.
+ * 
+ */
 $app->post('/addNoteToActivity','UserActivitiesController:addNoteToActivity');
+
+/**
+ * Updates the status of an activity.
+ * 
+ */
 $app->post('/updateStatus','UserActivitiesController:updateStatus');
+
+/**
+ * Fetches the details of requested user.
+ * 
+ */
 $app->post('/getUserDetails','UserActivitiesController:getUserDetails');
+
+/**
+ * Fetches the notes of different activities.
+ * 
+ */
 $app->post('/getActivityNotes','UserActivitiesController:getActivityNotes');
+
+/**
+ * Deletes the selected activity.
+ * 
+ */
 $app->post('/deleteActivity','UserActivitiesController:deleteActivity');
+
+/**
+ * Updates the details of selected activity.
+ * 
+ */
 $app->post('/updateActivity','UserActivitiesController:updateActivity');
+
+/**
+ * Updates the deatails of selected User.
+ * 
+ */
 $app->post('/updateUser','UserActivitiesController:updateUser');
 
 /**
  * login
  * user authentication for login
- *
+ * @param \Psr\Http\Message\ServerRequestInterface $request
+ * @param \Psr\Http\Message\ResponseInterface $response
  * returns {json object}
  */
 $app->post("/login",  function ($request, $response)

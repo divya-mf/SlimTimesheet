@@ -6,24 +6,27 @@
 
 namespace Src\Controllers;
 
-class UserActivitiesController extends Controller
+class UserActivitiesController 
 {
 
  
     private $fmMethodsObj;
     private $id; 
-    private $role;
+	private $role;
+	private $sanitize;
 
     public function __construct($container)
     {
-        $this->fmMethodsObj= $container->get('FileMakerWrapper');
+		$this->fmMethodsObj= $container->get('FileMakerWrapper');
+		$this->sanitize = $container->get('common');
         
     }
     
     /**
      * getAllUsers
      * fetches the information of all the users.
-     *
+	 * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns json object
      */
     public function getAllUsers($request, $response)
@@ -52,13 +55,14 @@ class UserActivitiesController extends Controller
     /**
      * getUserDetails
      * fetches the information of requested user.
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns json object
      */
     public function getUserDetails($request, $response)
     {
         $userDetails = array(
-                        'id' =>$request->getParsedBody()['id'],
+                        'id' =>$this->sanitize->sanitize($request->getParsedBody()['id']),
                         );
         $result = $this->fmMethodsObj->getOne('USR', $userDetails); 
         $records=$result['records'][0];
@@ -80,7 +84,8 @@ class UserActivitiesController extends Controller
     /**
      * addActivity
      * adds an activity to the database
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function addActivity($request, $response)
@@ -89,15 +94,15 @@ class UserActivitiesController extends Controller
 
             $date = date("m-d-Y", strtotime($request->getParsedBody()['date']));
             $activityDetails = array(
-                        'description' =>$request->getParsedBody()['description'],
-                        'fk_user_id' =>$request->getParsedBody()['user_id'],
-                        'priority'=>$request->getParsedBody()['priority'],
-                        'dueDate'=>$date
+                        'description'=>$this->sanitize->sanitize($request->getParsedBody()['description']),
+                        'fk_user_id'=>$this->sanitize->sanitize($request->getParsedBody()['user_id']),
+                        'priority'=>$this->sanitize->sanitize($request->getParsedBody()['priority']),
+                        'dueDate'=>$this->sanitize->sanitize($date)
                         );
 
             $result=$this->fmMethodsObj->createRecord('ACT', $activityDetails);
 
-            return $response->withStatus(200)
+            return $response->withStatus(201)
                             ->withJson("Activity added successfully");
         }
         else{   
@@ -111,7 +116,8 @@ class UserActivitiesController extends Controller
     /**
      * addNoteToActivity
      * adds a note to an activity 
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function addNoteToActivity($request, $response)
@@ -119,14 +125,14 @@ class UserActivitiesController extends Controller
         if($request->getParsedBody()['noteData']['note']!='') {
 
             $noteDetails = array(
-                        'note' =>$request->getParsedBody()['noteData']['note'],
-                        'timeSpent' =>$request->getParsedBody()['noteData']['timeSpent'],
-                        'activityID'=>$request->getParsedBody()['aId']
+                        'note' =>$this->sanitize->sanitize($request->getParsedBody()['noteData']['note']),
+                        'timeSpent' =>$this->sanitize->sanitize($request->getParsedBody()['noteData']['timeSpent']),
+                        'activityID'=>$this->sanitize->sanitize($request->getParsedBody()['aId'])
                         );
 
             $result=$this->fmMethodsObj->createRecord('activityNotes', $noteDetails);
 
-            return $response->withStatus(200)
+            return $response->withStatus(201)
                             ->withJson("Note added successfully");
         }
         else{   
@@ -140,7 +146,8 @@ class UserActivitiesController extends Controller
     /**
      * deleteActivity
      * deletes activity from the database
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function deleteActivity($request, $response)
@@ -148,7 +155,7 @@ class UserActivitiesController extends Controller
         $id=$request->getParsedBody()['id'];
         $result=$this->fmMethodsObj->deleteRecord('ACT', $id);
 
-        return $response->withStatus(200)
+        return $response->withStatus(204)
                         ->withJson("deleted successfully");
         
     }
@@ -156,15 +163,16 @@ class UserActivitiesController extends Controller
     /**
      * getAllActivities
      * fetches all the activities
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function getAllActivities($request, $response)
     {
 
         $activities=array();
-        $id=$request->getParsedBody()['dataToSend']['id'];
-        $role=$request->getParsedBody()['dataToSend']['role'];
+        $id=$this->sanitize->sanitize($request->getParsedBody()['dataToSend']['id']);
+        $role=$this->sanitize->sanitize($request->getParsedBody()['dataToSend']['role']);
         $userDetails = array(
                         'fk_user_id' =>$id,
                         );
@@ -249,7 +257,8 @@ class UserActivitiesController extends Controller
     /**
      * updateStatus
      * updates the status of an activity in the database
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function updateStatus($request, $response)
@@ -266,16 +275,17 @@ class UserActivitiesController extends Controller
     /**
      * updateActivity
      * updates the details of an activity in the database
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function updateActivity($request, $response)
     {
         $id = $request->getParsedBody()['id'];
         $activityDetails = array(
-        'description' =>$request->getParsedBody()['activityData']['description'],
-        'priority' =>$request->getParsedBody()['activityData']['priority'],
-        'dueDate' =>$request->getParsedBody()['activityData']['date']
+        'description' =>$this->sanitize->sanitize($request->getParsedBody()['activityData']['description']),
+        'priority' =>$this->sanitize->sanitize($request->getParsedBody()['activityData']['priority']),
+        'dueDate' =>$this->sanitize->sanitize($request->getParsedBody()['activityData']['date'])
                     );
 
         $result=$this->fmMethodsObj->updateRecord('ACT', $id, $activityDetails);
@@ -285,16 +295,17 @@ class UserActivitiesController extends Controller
     /**
      * updateUser
      * updates the details of an activity in the database
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function updateUser($request, $response)
     {
         $id = $request->getParsedBody()['id'];
         $userDetails = array(
-        'firstName' =>$request->getParsedBody()['userData']['fname'],
-        'lastName' =>$request->getParsedBody()['userData']['lname'],
-        'email' =>$request->getParsedBody()['userData']['email']
+        'firstName' =>$this->sanitize->sanitize($request->getParsedBody()['userData']['fname']),
+        'lastName' =>$this->sanitize->sanitize($request->getParsedBody()['userData']['lname']),
+        'email' =>$this->sanitize->sanitize($request->getParsedBody()['userData']['email'])
                     );
 
         $result=$this->fmMethodsObj->updateRecord('USR', $id, $userDetails);
@@ -305,7 +316,8 @@ class UserActivitiesController extends Controller
     /**
      * getActivityNotes
      * fetches all the notes assigned to an activity.
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns json object
      */
     public function getActivityNotes($request, $response)

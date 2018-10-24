@@ -18,9 +18,9 @@ $container['logger'] = function ($container) {
     return $logger;
 };
 
-$container['Controller'] = function ($container)
+$container['common'] = function ($container)
 {
-	return new \Src\Controllers\Controller($container);
+	return new \Src\Services\Common($container);
 };
 
 //object of AuthController class

@@ -1,8 +1,8 @@
 <?php
-// Application middleware
- 
-// e.g: $app->add(new \Slim\Csrf\Guard);
-// Adding dependencies
+/**
+ * middleware
+ * Handles jwt authentication in headers through routes. 
+ */
  
 use Tuupola\Middleware\HttpBasicAuthentication;
  
@@ -13,7 +13,6 @@ $container["jwt"] = function ($container) {
 };
 
 
- 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
     //"path" => "/",
     "logger" => $container['logger'],
@@ -21,7 +20,7 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
     "rules" => [
         new Tuupola\Middleware\JwtAuthentication\RequestPathRule([
             "path" => "/",
-            "ignore" => ["/token", "/login","/register"]
+            "ignore" => ["/login","/register"]
         ]),
         new Tuupola\Middleware\JwtAuthentication\RequestMethodRule([
             "ignore" => ["OPTIONS"]
@@ -37,19 +36,17 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
     }
 ]));
  
+// $app->add(function ($request, $response, $next) use ($container) {
+//     $response = $next($request, $response);
+//     $common = $container->get('common');
+//     $newBody = $common->sanitize($request->getParsedBody());
+//     $response->withBody($newBody);
+//    // var_dump($response);exit;
+//    return $response;
+// });
 $app->add(new Tuupola\Middleware\HttpBasicAuthentication([
     "path" => "/api/token",
     "users" => [
         "user" => "password"
     ]
 ]));
- 
- 
-// $app->add(new Tuupola\Middleware\CorsMiddleware([
-//     //"logger" => $container["logger"],
-//     "credentials" => true,
-//     //'preflightContinue'=> false,
-//     "error" => function ($request, $response, $arguments) {
-//         return new UnauthorizedResponse($arguments["message"], 401);
-//     }
-// ]));

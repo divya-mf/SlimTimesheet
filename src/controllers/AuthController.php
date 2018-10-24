@@ -6,39 +6,40 @@
 
 namespace Src\Controllers;
 
-class AuthController extends Controller
+class AuthController
 {
     private $class;
     private $fmMethodsObj;
     private $contain;
     private $log;
-    private $middleware;
+    private $sanitize;
 
     public function __construct( $container)
     {
         $this->fmMethodsObj = $container->get('FileMakerWrapper'); //FileMaker connection object
         $this->log = $container->get('logger');
         $this->class = $container->get('Constants')->fileMaker;
-        $this->middleware = $container->get('Controller');
+        $this->sanitize = $container->get('common');
 
     }
     
     /**
      * signUp
      * registers user
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function signUp($request, $response)
     {
-        $data=$request->getParsedBody();
-        $email = $data['email'];
+        $data= $request->getParsedBody();
+        $email = $this->sanitize->sanitize($data['email']);
         $password =  password_hash($data['password'], PASSWORD_DEFAULT);
 
         //array to store the values to pass into the database
         $userDetails = array(
-                    'firstName' => $data['firstName'],
-                    'lastName' => $data['lastName'],
+                    'firstName' => $this->sanitize->sanitize($data['firstName']),
+                    'lastName' => $this->sanitize->sanitize($data['lastName']),
                     'email' => $email,
                     'password'=> $password
                 );
@@ -69,7 +70,8 @@ class AuthController extends Controller
     /**
      * login
      * user authentication for login
-     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      * returns {json object}
      */
     public function login($request, $response)
