@@ -1,16 +1,13 @@
 <?php
 /**
  * AuthController
- * class that manages all the login and registration of the user.
- *
+ * class that manages the login and registration of the user.
  */
-use Firebase\JWT\JWT;
-use Tuupola\Base62;
-use \Datetime;
+
 namespace Src\Controllers;
 
 class AuthController extends Controller
- { 
+{
     private $class;
     private $fmMethodsObj;
     private $contain;
@@ -24,45 +21,41 @@ class AuthController extends Controller
         $this->class = $container->get('Constants')->fileMaker;
         $this->middleware = $container->get('Controller');
 
-	}
+    }
     
     /**
-	 * signUp
+     * signUp
      * registers user
      *
      * returns {json object}
      */
     public function signUp($request, $response)
     {
-        //array to store the values to pass into the database
         $data=$request->getParsedBody();
         $email = $data['email'];
         $password =  password_hash($data['password'], PASSWORD_DEFAULT);
 
+        //array to store the values to pass into the database
         $userDetails = array(
                     'firstName' => $data['firstName'],
                     'lastName' => $data['lastName'],
                     'email' => $email,
                     'password'=> $password
-
                 );
         $checkEmail = array(
                     'email'=> $email
                 );
-        $result=$this->fmMethodsObj->getOne('USR',$checkEmail);
+        $result=$this->fmMethodsObj->getOne('USR', $checkEmail);
        
 
         //to check if there are no records with similar email id.
-        if (empty ($result['records'])) 
-        {
+        if (empty($result['records'])) {
             $newUser = $this->fmMethodsObj->createRecord('USR', $userDetails);
-           // $passStatus = $this->fmMethodsObj->performScript('USR', 'hashPassword',$password);  
             $res = array('description'=>"registered successfully");  
             $http_status_code = 200;
              
         }
-        else
-        { 
+        else{ 
             $res = array('description'=>"email already exists");
             $http_status_code = 400;        
         }
@@ -74,7 +67,7 @@ class AuthController extends Controller
     }
 
     /**
-	 * login
+     * login
      * user authentication for login
      *
      * returns {json object}
@@ -86,23 +79,19 @@ class AuthController extends Controller
         $loginData = array(
                 'email'=> $email
         );
-        $result = $this->fmMethodsObj->getOne('USR',$loginData);
+        $result = $this->fmMethodsObj->getOne('USR', $loginData);
 
-        if (empty ($result['records']) )
-        { 
+        if (empty($result['records']) ) { 
             $res = array('description'=>"incorrect credentials");
             $http_status_code = 400;
         }
-        else
-        {
-            if(password_verify($pw,$result['records'][0]->getField('password')))
-            {
-                $_SESSION['id'] = $result['records'][0]->getField('id');
-                $_SESSION['role'] = $result['records'][0]->getField('role');
+        else {
+            if(password_verify($pw, $result['records'][0]->getField('password'))) {
+                $id = $result['records'][0]->getField('id');
+                $role = $result['records'][0]->getField('role');
                 $userName=$result['records'][0]->getField('firstName');
                 $now = new DateTime();
                 $future = new DateTime("+10 minutes");
-                //$server = $request->getServerParams();
                 $jti = (new Base62)->encode(random_bytes(16));
                 $payload = [
                     "iat" => $now->getTimeStamp(),
@@ -110,18 +99,16 @@ class AuthController extends Controller
                     "jti" => $jti,
                     "user" => $userName
                 ];
-                print_r($payload);exit;
                 $secret = getenv('JWT_SECRET');
                 $token = JWT::encode($payload, $secret, "HS256");
                 $data = array();
                 $data["token"] = $token;
                 $data["expires"] = $future->getTimeStamp();
                
-                $res = array('description'=>"login successful",'id'=>$_SESSION['id'],"user"=>$userName);
+                $res = array('description'=>"login successful",'id'=>$id,"user"=>$userName);
                 $http_status_code = 200;
             }
-            else
-            {
+            else{
                 $res = array('description'=>"incorrect credentials");
                 $http_status_code = 400;
             }

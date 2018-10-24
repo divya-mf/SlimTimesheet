@@ -13,8 +13,8 @@ class FileMakerWrapper{
 
 	/**
  	 * Constructor
- 	 * includes the configuration file for database connectivity
- 	 * initializes the private class variable with FileMaker object 
+ 	 * initializes the private class variable with configuration object for database connectivity
+ 	 * initializes the private class variable with logger object for logging errors
  	 */
 	public function __construct($container){
         $this->fm=$container->get('db'); //FileMaker connection object
@@ -28,28 +28,25 @@ class FileMakerWrapper{
      * finds and fetches the information as per given criteria.
      *
      * @param string $layout The FileMaker layout name.
-     * @param string $field The FileMaker field name.
-     * @param string $value The value that needs to be searched in the field.
+     * @param array $findData Array of data to find records with.
      * returns {array}
      */
-	public function getOne($layout, $loginData)
+	public function getOne($layout, $findData)
 	{
         $findCommand = $this->fm->newFindCommand($layout);
-        foreach ($loginData as $key => $val) {
+        foreach ($findData as $key => $val) {
             
             $findCommand->addFindCriterion($key,"==$val");
         }
         $result = $findCommand->execute();
-        if ($this->class::isError($result))
-        {   
+        if ($this->class::isError($result)){   
             $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $status['records']=[]; 
              
             $result->code!= 401 ?  $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
         }
-        else
-        {
+        else {
             $records = $result->getRecords();
             $status['msg']=array('status'=> "Ok", 'code'=> 200);
             $status['records']=$records;
@@ -72,8 +69,7 @@ class FileMakerWrapper{
         $status['records']=$records;
         $status['msg']=array('status'=> "Ok", 'code'=> 200);
 
-        if ($this->class::isError($records))
-        {
+        if ($this->class::isError($records)){
             $status['msg']=array('status'=> $records->getMessage(), 'code'=> $records->code);
             $status['records']=[];
             $records->code!= 401 ? $this->log->addInfo($records->code.'=> '.$records->getMessage()) : '';
@@ -87,7 +83,7 @@ class FileMakerWrapper{
      *
      * @param string $layout The FileMaker layout name.
      * @param array $findCriteria The fields and values to find if any.
-     * @param array $range data related to range.
+     * @param array $range data related mininum and maximum values of range.
      * returns {array}
      */
 	public function getRecordsByRange($layout, $findCriteria, $range)
@@ -101,16 +97,14 @@ class FileMakerWrapper{
         $findCommand->setRange($skip, $max);
         $result = $findCommand->execute();
         $found = $result->getFoundSetCount();
-        if ($this->class::isError($result))
-        {   
+        if ($this->class::isError($result)){   
             $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $status['records']=[]; 
              
             $result->code!= 401 ?  $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
         }
-        else
-        {
+        else{
             $records = $result->getRecords();
             $status['msg']=array('status'=> "Ok", 'code'=> 200);
             $status['records']=$records;
@@ -138,32 +132,26 @@ class FileMakerWrapper{
         {
             ${'findRequest' . $i} = $this->fm->newFindRequest($layout);
 
-            if($val!='')
-            {
+            if($val!='') {
                 ${'findRequest' . $i}->addFindCriterion($key, "*$val*");
             }
             
-            foreach ($allANDs as $field => $value)
-            {
-                if($value!='')
-                {
+            foreach ($allANDs as $field => $value){
+                if($value!=''){
                     ${'findRequest' . $i}->addFindCriterion($field, "==$value");
                 }
             }
-            if(empty($val) && empty($value))
-            {
+            if(empty($val) && empty($value)){
                 $status['flag']=0;
             }
-            else
-            {
+            else{
                 $findCommand->add($i, ${'findRequest' . $i});
                 $i++;
             } 
         }
 
         $result = $findCommand->execute();
-        if ($this->class::isError($result))
-        {
+        if ($this->class::isError($result)){
             $status['msg']=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $status['records']=[];
 
@@ -174,8 +162,7 @@ class FileMakerWrapper{
             $records = $result->getRecords(); 
             $status['records']=$records;
 
-            if ($this->class::isError($records))
-            {
+            if ($this->class::isError($records)){
                 $status['msg']=array('status'=> $records->getMessage(), 'code'=> $records->code);
                 $status['records']=[];
                 $records->code!= 401 ? $this->log->addInfo($records->code.'=> '.$records->getMessage()) : '';
@@ -195,20 +182,15 @@ class FileMakerWrapper{
      */
 	public function createRecord($layout, $data)
 	{
-       // $scriptName="hashPasssword";
         $rec = $this->fm->createRecord($layout, $data);
         $result = $rec->commit();
         
-       if ($this->class::isError($result)) 
-       {
+       if ($this->class::isError($result)) {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
             return $status;
        }
-         // Execute the script
-       //$scriptObject = $this->fm->newPerformScriptCommand($layout, $scriptName);
-       //$result = $scriptObject->execute();
 
        return  $status=array('status'=> "Ok", 'code'=> 200, 'description'=> "Added successfully");
     }
@@ -231,8 +213,7 @@ class FileMakerWrapper{
         $records = $result->getRecords(); 
         $records->delete();
         
-       if ($this->class::isError($result)) 
-       {
+       if ($this->class::isError($result)) {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
@@ -252,35 +233,30 @@ class FileMakerWrapper{
      * @param string $data The data to update in the database.
      * returns {boolean value}
      */
-    public function updateRecord($layout,$id, $data)
+    public function updateRecord($layout,$id,$data)
     {
         $findCommand = $this->fm->newFindCommand($layout);
         
         $findCommand->addFindCriterion('id',"==$id");
         $result = $findCommand->execute();
         
-       if ($this->class::isError($result)) 
-       {
+       if ($this->class::isError($result)) {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
             return $status;
        }
         $rec_ID = $result->getLastRecord()->getRecordID();
-       /* $newEdit = $fm->newEditCommand($layout, $rec_ID, $respondent_data);
-        $result = $newEdit->execute(); */
         $rec = $this->fm->getRecordById($layout, $rec_ID);
         foreach ($data as $field => $value)
             {
-                if($value!='')
-                {
+                if($value!=''){
                     $rec->setField($field, $value);
                 }
             }
        
         $result = $rec->commit();
-        if ($this->class::isError($result)) 
-        {
+        if ($this->class::isError($result)) {
             $status=array('status'=> $result->getMessage(), 'code'=> $result->code);
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             
@@ -303,8 +279,7 @@ class FileMakerWrapper{
     {
        $scriptObject = $this->fm->newPerformScriptCommand($layout, $scriptName,$scriptParameter);
        $result = $scriptObject->execute(); 
-       if ($this->class::isError($result)) 
-       {
+       if ($this->class::isError($result)) {
             $status=[];
             $result->code!= 401 ? $this->log->addInfo($result->code.'=> '.$result->getMessage()) : '';
             

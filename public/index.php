@@ -1,11 +1,20 @@
 <?php
-// header('Access-Control-Allow-Origin: *');
-// header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-// header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token,Authorization');
+require '../vendor/autoload.php';
 
-session_start();
+$settings = require __DIR__ . '/../src/settings.php';
 
-require __DIR__ .'/../container/boot.php';
+$app = new \Slim\App($settings);
+
+//fetch all the dependencies
+
+require __DIR__ . '/../src/dependencies.php';
+
+// Register middleware
+require '../src/middleware.php';
+
+// Register routes
+require '../src/routes.php';
+
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
